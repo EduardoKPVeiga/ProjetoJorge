@@ -78,11 +78,6 @@ void loop() {
   draw_Buttons(0);
   TSPoint p = waitTouch();
   X = p.x; Y = 330 - p.y;
-  Serial.print("Touch.y: ");
-  Serial.println(Y);
-
-  Serial.print("Touch.x: ");
-  Serial.println(X);
 
   DetectButtons(); // DETECTA OS BOTOES
   delay(300);
@@ -170,7 +165,55 @@ void drawFrame() {
   tft.fillRect(20, 170, 280, 5, BLACK);
   tft.fillRect(20, 270, 280, 5, BLACK);
   
+  int move = 1;
+
+  while(1)
+    move = makeMove(move);
+}
+
+int makeMove(int _move) {
   TSPoint p = waitTouch();
+
+  Serial.print("Touch.y: ");
+  Serial.println(p.y);
+
+  Serial.print("Touch.x: ");
+  Serial.println(p.x);
+  
+  if(p.x > 170 && p.x <= 240) {
+    _move = moveY(50, p.y, _move);
+  }
+  else if(p.x > 70 && p.x <= 170) {
+    _move = moveY(150, p.y, _move);
+  }
+  else {
+    _move = moveY(250, p.y, _move);
+  }
+  return _move;
+}
+
+int moveY(int _x, int _y, int _move) {
+  if(_y > 0 && _y <= 100) {
+    _move = drawMove(_x, 120, _move);
+  }
+  else if(_y > 100 && _y <= 180) {
+    _move = drawMove(_x, 210, _move);
+  }
+  else {
+    _move = drawMove(_x, 300, _move);
+  }
+  return _move;
+}
+
+int drawMove(int _x, int _y, int _move) {
+  delay(200);
+  tft.setTextSize(4);
+  tft.setCursor(_x, _y);
+  if(_move > 0)  
+    tft.print("X");
+  else
+    tft.print("O");
+  return (_move * (-1));
 }
 
 void clearScreen() {
