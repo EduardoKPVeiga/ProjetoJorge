@@ -44,7 +44,7 @@ MCUFRIEND_kbv tft;
 TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300); //300 É A SENSITIVIDADE
 
 int X, Y;
-long corBot[3] = {DESLIGADO, DESLIGADO, DESLIGADO};
+long corBot[2] = {DESLIGADO, DESLIGADO};
 
 TSPoint waitTouch() {
   TSPoint p;
@@ -71,10 +71,11 @@ void setup() {
   tft.setRotation(2);
 
   IntroScreen();
-  draw_Buttons(0);
+  
 }
 
 void loop() {
+  draw_Buttons(0);
   TSPoint p = waitTouch();
   X = p.x; Y = 330 - p.y;
   Serial.print("Touch.y: ");
@@ -84,22 +85,23 @@ void loop() {
   Serial.println(X);
 
   DetectButtons(); // DETECTA OS BOTOES
-
   delay(300);
+
+  resetButtons();
+  clearScreen();
 }
 
 void IntroScreen() {
-  tft.fillScreen(BLACK);
-
+  clearScreen();
   tft.setCursor (45, 80);
   tft.setTextSize (3);
   tft.setTextColor(WHITE);
   tft.println("JOGO DA VELHA");
-  tft.setCursor (55, 110);
+  tft.setCursor (50, 110);
   tft.setTextSize (2);
   tft.setTextColor(BLUE);
   tft.println("Projeto de Oficinas");
-  delay(3500);
+  delay(2000);
 }
 
 void DetectButtons() {
@@ -109,8 +111,7 @@ void DetectButtons() {
       if (corBot[0] == LIGADO) corBot[0] = DESLIGADO;
       else corBot[0] = LIGADO;
       draw_Buttons(1);
-      Serial.print("teste: ");
-      Serial.println(eduardo());
+      drawFrame();
     }
 
     if (Y > 100 && Y < 161) { // LOGICA PARA O BOTAO 2
@@ -118,6 +119,7 @@ void DetectButtons() {
       if (corBot[1] == LIGADO) corBot[1] = DESLIGADO;
       else corBot[1] = LIGADO;
       draw_Buttons(2);
+      drawFrame();
     }
   }
 }
@@ -155,5 +157,27 @@ void draw_Buttons(int type) {
       tft.setCursor(95, 280);
       tft.println("2 JOGADORES");
   }
+}
 
+void drawFrame() {
+  delay(200);
+  tft.fillScreen(WHITE);
+  // Vertical
+  tft.fillRect(100, 80, 5, 300, BLACK);
+  tft.fillRect(220, 80, 5, 300, BLACK);
+
+  // Horizontal
+  tft.fillRect(20, 170, 280, 5, BLACK);
+  tft.fillRect(20, 270, 280, 5, BLACK);
+  
+  TSPoint p = waitTouch();
+}
+
+void clearScreen() {
+  tft.fillScreen(BLACK);
+}
+
+void resetButtons() {
+  corBot[0] = DESLIGADO;
+  corBot[1] = DESLIGADO;
 }
