@@ -71,7 +71,7 @@ void setup() {
   tft.setRotation(2);
 
   IntroScreen();
-  
+  inicializarMatriz();
 }
 
 void loop() {
@@ -106,7 +106,7 @@ void DetectButtons() {
       if (corBot[0] == LIGADO) corBot[0] = DESLIGADO;
       else corBot[0] = LIGADO;
       draw_Buttons(1);
-      drawFrame();
+      //drawFrame();
     }
 
     if (Y > 100 && Y < 161) { // LOGICA PARA O BOTAO 2
@@ -157,6 +157,7 @@ void draw_Buttons(int type) {
 void drawFrame() {
   delay(200);
   tft.fillScreen(WHITE);
+  tft.setTextColor(BLACK);
   // Vertical
   tft.fillRect(100, 80, 5, 300, BLACK);
   tft.fillRect(220, 80, 5, 300, BLACK);
@@ -165,13 +166,65 @@ void drawFrame() {
   tft.fillRect(20, 170, 280, 5, BLACK);
   tft.fillRect(20, 270, 280, 5, BLACK);
   
-  int move = 1;
+  short move = -1, move_aux = move;
 
-  while(1)
-    move = makeMove(move);
+  int end = 0, cont = 0;  
+  while(end == 0) {
+    move_aux = makeMove(move_aux);
+    int i,j;
+    /*
+    for(i = 0; i < 3; i++) {
+        for(j = 0; j < 3; j++) {
+            Serial.print("[");
+            Serial.print(i);
+            Serial.print("][");
+            Serial.print(j);
+            Serial.print("]: ");
+            Serial.println(getJogoAt(i, j));
+        }
+    }*/
+    if(move_aux != move) {
+      cont++;
+      move = move_aux;
+      if(jogoGanho() || cont == 9)
+        end = 1;
+    }
+  }
+  
+  if(cont == 9) {
+    clearScreen();
+    tft.setCursor (45, 80);
+    tft.setTextSize (3);
+    tft.setTextColor(WHITE);
+    tft.println("EMPATE!");
+    
+    tft.setTextSize (2);    
+    for(int i = 0; i < 3; i++) {
+      for(int j = 0; j < 3; j++) {
+        tft.setCursor (45 + (i * 10), 120 + (j * 10));
+      }        
+    }
+  }
+  else {
+    if(move > 0) {
+      clearScreen();
+      tft.setCursor (45, 80);
+      tft.setTextSize (3);
+      tft.setTextColor(WHITE);
+      tft.println("JOGADOR 1 VENCEU!");
+    } else {
+      clearScreen();
+      tft.setCursor (45, 80);
+      tft.setTextSize (3);
+      tft.setTextColor(WHITE);
+      tft.println("JOGADOR 2 VENCEU!");
+    }
+  }
+  inicializarMatriz();  
+  delay(2000);
 }
 
-int makeMove(int _move) {
+int makeMove(short _move) {
   TSPoint p = waitTouch();
 
   Serial.print("Touch.y: ");
@@ -179,41 +232,81 @@ int makeMove(int _move) {
 
   Serial.print("Touch.x: ");
   Serial.println(p.x);
-  
+
   if(p.x > 170 && p.x <= 240) {
-    _move = moveY(50, p.y, _move);
+    _move = moveY(50, p.y, _move, 0);
   }
   else if(p.x > 70 && p.x <= 170) {
-    _move = moveY(150, p.y, _move);
+    _move = moveY(150, p.y, _move, 1);
   }
   else {
-    _move = moveY(250, p.y, _move);
+    _move = moveY(250, p.y, _move, 2);
   }
+  //Serial.print("MakeMove: ");
+  //Serial.println(_move);  
   return _move;
 }
 
-int moveY(int _x, int _y, int _move) {
+int moveY(int _x, int _y, short _move, int _xindex) {
   if(_y > 0 && _y <= 100) {
-    _move = drawMove(_x, 120, _move);
+    //if(fazerJogada(_xindex, 0, _move))
+      _move = drawMove(_x, 120, _move);
   }
   else if(_y > 100 && _y <= 180) {
-    _move = drawMove(_x, 210, _move);
+    //if(fazerJogada(_xindex, 1, _move))
+      _move = drawMove(_x, 210, _move);
   }
   else {
-    _move = drawMove(_x, 300, _move);
+    //if(fazerJogada(_xindex, 2, _move))
+      _move = drawMove(_x, 300, _move);
+  }
+  //Serial.print("MoveY: ");
+  //Serial.println(_move);
+  return _move;
+}
+
+int drawMove(int _x, int _y, short _move) {
+  delay(200);
+  tft.setTextColor(BLACK);
+  tft.setTextSize(4);
+  tft.setCursor(_x, _y);
+  char moveChar = "";
+  if(_move > 0) {  
+    moveChar = 'X';
+  }
+  else { 
+    moveChar = '0';
+  }
+  
+  if(fazerJogada(indiceX(_x), indiceY(_y), _move)){
+    _move = _move * (-1);
+    tft.print(moveChar);
   }
   return _move;
 }
 
-int drawMove(int _x, int _y, int _move) {
-  delay(200);
-  tft.setTextSize(4);
-  tft.setCursor(_x, _y);
-  if(_move > 0)  
-    tft.print("X");
-  else
-    tft.print("O");
-  return (_move * (-1));
+int indiceY(int _y){
+  if(_y == 120) {
+    return 0;
+  }
+  else if(_y == 210) {
+    return 1;
+  }
+  else {
+    return 2;
+  }
+}
+
+int indiceX(int _x){
+  if(_x == 50) {
+    return 0;
+  }
+  else if(_x == 150) {
+    return 1;
+  }
+  else {
+    return 2;
+  }
 }
 
 void clearScreen() {

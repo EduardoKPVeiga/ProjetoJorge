@@ -1,0 +1,6 @@
+Jorge é uma IA que inicialmente foi desenvolvido como forma
+de entretenimento por alunos do DAINF, porém Jorge logo
+saiu de controle. Ele clama ser o maior jogador de Tic Tac Toe
+do mundo enquanto desafia todos que ousam entrar em seu caminho.
+Você é capaz de vencer a arrogância de Jorge? Ou será mais um
+dos humilhados?

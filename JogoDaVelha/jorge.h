@@ -3,39 +3,58 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-char jogo[3][3];
 //char jogador1[50], jogador2[50];
 int player1 = 1;
 int player2 = 2;
+int jogo[3][3];
 
 void inicializarMatriz() {
     int i,j;
     for(i = 0; i < 3; i++) {
         for(j = 0; j < 3; j++) {
-            jogo[i][j] = ' ';
+            jogo[i][j] = 0;
         }
     }
 }
 
-int eValido(char letra) {
-    if(letra == 'x' || letra == '0')
+int getJogoAt(int _x, int _y){
+  return jogo[_x][_y];
+}
+
+int eValido(int pos) {
+    if(pos == 1 || pos == 2)
         return 1;
     else
         return 0;
 }
 
-int coordenadaEhValida(int x, int y) {
-    if(x >= 0 && x < 3) {
-        if(y >= 0 && y < 3)
+bool coordenadaEhValida(int _x, int _y) {
+    if(_x >= 0 && _x < 3) {
+        if(_y >= 0 && _y < 3)
             return 1;
     }
     return 0;
 }
 
-int posicaVazia(int x, int y) {
-    if(jogo[x][y] != 'x' && jogo[x][y] != '0')
+bool posicaVazia(int x, int y) {
+    if(jogo[x][y] == 0)
         return 1;
     return 0;
+}
+
+bool fazerJogada(int _i, int _j, short _jogada) {
+  if(!posicaVazia(_i, _j)){
+    return false;
+  }
+  else {
+    if(_jogada > 0){
+      jogo[_i][_j] = 1;
+    }
+    else{
+      jogo[_i][_j] = 2;
+    }
+    return true;
+  }
 }
 
 int ganhouLinhas() {
@@ -90,79 +109,13 @@ int ganhoudiagSecundaria() {
         return 0;
 }
 
-/*
-void imprimir() {
-    int lin, col;
-
-    printf("\n\t    0  1  2\n");
-    for(lin = 0; lin < 3; lin++) {
-        printf("\t%d ", lin);
-        for(col = 0; col < 3; col++) {
-            if(col < 2)
-                printf(" %c |", jogo[lin][col]);
-            else
-                printf(" %c ", jogo[lin][col]);
-        }
-        if(lin < 2)
-            printf("\n\t   ---------\n");
-    }
+bool jogoGanho() {
+  int ganhou = 0;
+  ganhou += ganhouLinhas();
+  ganhou += ganhouColunas();
+  ganhou += ganhoudiagPrincipal();
+  ganhou += ganhoudiagSecundaria();
+  if(ganhou > 0)
+    return 1;  
+  return 0;
 }
-*/
-
-int jogar() {
-    int x, y, valida, jogadas = 0, ganhou = 0, ordem = 1;
-
-    do {
-        do {
-            printf("\nDigite a coordenada que deseja jogar: ");
-            scanf("%d%d", &x, &y);
-            valida = coordenadaEhValida(x, y);
-            if(valida == 1)
-                valida += posicaVazia(x, y);
-        } while(valida != 2);
-        if(ordem == 1)
-            jogo[x][y] = 'x';
-        else
-            jogo[x][y] = '0';
-        jogadas++;
-        ordem++;
-        if(ordem == 3)
-            ordem = 1;
-        ganhou += ganhouLinhas();
-        ganhou += ganhouColunas();
-        ganhou += ganhoudiagPrincipal();
-        ganhou += ganhoudiagSecundaria();
-    } while(ganhou == 0 && jogadas < 9);
-
-    if(ganhou != 0) {
-        //imprimir();
-        if(ordem - 1 == 1)
-          return player1;
-          //printf("\nParabens. Voce venceu %s\n", jogador1);
-        else
-          return player2;
-          //printf("\nParabens. Voce venceu %s\n", jogador2);
-    } else
-        return 0;
-        //printf("\nQue feio. Ninguem venceu!\n\n");
-}
-/*
-int main() {
-
-    int op;
-
-    printf("Jogar 1 digite seu nome: ");
-    fgets(jogador1, 50, stdin);
-    printf("Jogar 2 digite seu nome: ");
-    fgets(jogador2, 50, stdin);
-
-    do {
-        inicializarMatriz();
-        jogar();
-        printf("Deseja jogar novamente?\n1 - Sim\n2 - Nao\n");
-        scanf("%d", &op);
-    } while(op == 1);
-
-    return 0;
-}
-*/
