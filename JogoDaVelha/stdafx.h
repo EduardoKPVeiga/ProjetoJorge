@@ -55,6 +55,7 @@ typedef struct{
 	int x, y;
 }Coordenada;
 
+
 //Defines
 #define AI 1
 #define PLAYER_2 2
@@ -138,34 +139,34 @@ void desenharJogada(int linha, int coluna, int turn, MCUFRIEND_kbv tft){
 
 	//Há apenas 3 casos para a coluna:
 	switch(coluna){
-	case 0:
-		x = 50;
-		break;
-	case 1:
-		x = 140;
-		break;
-	case 2:
-		x = 230;
-		break;
-	default:
-		Serial.println("Erro inesperado na funcao desenhaJogada. ERRO COLUNA");
-		break;
+    case 0:
+      x = 53;
+      break;
+    case 1:
+      x = 138;
+      break;
+    case 2:
+      x = 223;
+      break;
+    default:
+      Serial.println("Erro inesperado na funcao desenhaJogada. ERRO COLUNA");
+      break;
 	}
 
 	//Agora quanto a linha
 	switch(linha){
-	case 0:
-		y = 105;
-		break;
-	case 1:
-		y = 195;
-		break;
-	case 2:
-		y = 285;
-		break;
-	default:
-		Serial.println("Erro inesperado na funcao desenhaJogada. ERRO LINHA");
-		break;
+    case 0:
+      y = 122;
+      break;
+    case 1:
+      y = 207;
+      break;
+    case 2:
+      y = 292;
+      break;
+    default:
+      Serial.println("Erro inesperado na funcao desenhaJogada. ERRO LINHA");
+      break;
 	}
 
   delay(100);
@@ -198,25 +199,25 @@ Coordenada coordenadaHash (int x, int y){
 	Coordenada coord;
   coord.x = -1;
   coord.y = -1;
-  if(x > 205 && x <= 295){
+  if(x > 203 && x <= 288){
    	coord.x = 2;
   }
- 	else if( x > 115 && x <= 205){
+ 	else if( x > 118 && x <= 203){
    	coord.x = 1;
   }
-  	else if (x > 25 && x <= 115){
+  	else if (x > 33 && x <= 118){
     	coord.x = 0;
   }
 
-  if(y > 90 && y <= 180){
+  if(y > 112 && y <= 197){
     coord.y = 0;
   }
 
-  else if( y > 180 && y <= 270){
+  else if( y > 197 && y <= 282){
     coord.y = 1;
   }
 
-  else if ( y > 270 && y <= 360){
+  else if ( y > 282 && y <= 367){
     coord.y = 2;
   }
   
@@ -312,7 +313,7 @@ void desenhaJogadas3D(MCUFRIEND_kbv *tft,int i, int j, int k, int turno){
 //Resetar variaveis
 void resetarVariaveis(){
 	cont=0;
-	turn=0;
+	turn=1;
 }
 
 void desenharJogoSalvo(int** hash, MCUFRIEND_kbv tft){

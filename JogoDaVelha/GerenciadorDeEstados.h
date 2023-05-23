@@ -7,77 +7,140 @@
 #include "MenuInicial.h"
 #include "MenuEscolhaJogadores.h"
 #include "Botao.h"
-
+#include "Jogo2D.h"
+MenuInicial _menuInicial(BLACK, &tft, true, "ESCOLHA O MODO DE JOGO");
+MenuEscolhaJogadores _menuEscolhaJogadores(BLACK, &tft, true, "ESCOLHA N° DE JOGADORES");
+MenuPause _menuPause(BLACK,&tft,true,"PAUSE");
+Jogo2D jogo2D;
 void GerenciarEstados(){
 /*=====================================================================================================*/
 //MENU INICIAL
 	if(estadoAtual == MENU_INICIAL){
 		//Desenha o menu inicial
-		MenuInicial _menuInicial(BLACK, &tft, true, "ESCOLHA O MODO DE JOGO");
-		_menuInicial.desenharMenu();
-
-		//Recebe input do usuário, aguarda o click
-		TSPoint p = waitTouch(ts);
-
-		//Agora é preciso processar esse ponto clicado
-		//processarClique(p, &estadoAtual);
-  	//Clicou no botão iniciar com apenas 1 jogador
-	  if(p.x < 270 && p.x > 70 && p.y > 120 && p.y < 210){
-		  //Altera o estado
-		  estadoAtual = MENU_ESCOLHA_JOGADORES;
-		  tresD = 0;
-		  newGame = 1;
-		  //Faz o botão clicado trocar de cor
-      _menuInicial.ligaBotao(0);
+		Menu* menuInicialPtr = dynamic_cast<Menu*>(&_menuInicial);
+    menuInicialPtr->desenharMenu();
+    int ativo;
+    int leitura = analogRead(A15);
+    int input = onRange(leitura);
+    TSPoint p;
+    while(input != 5 && ((p.z < MINPRESSURE || p.z > MAXPRESSURE))){
       
-	  }
-	  else if(p.x < 270 && p.x > 70 && p.y > 240 && p.y < 330){
-		  //Altera o estado
-		  estadoAtual = MENU_ESCOLHA_JOGADORES;
-		  tresD = 1;
-		  newGame = 1;
-		  //Faz o botão clicado piscar
-      _menuInicial.ligaBotao(1);
-	  }
+      p = ts.getPoint();
+      pinMode(XM, OUTPUT);
+      pinMode(YP, OUTPUT);
+      leitura = analogRead(A15);
+      
+      input = onRange(leitura);
+      //botao apertado é cima ou baixo
+      if(input == 2 || input == 3){
+        delay(200);
+        menuInicialPtr->trocaBotao(input);
+      }
+    }
+    if(input!=5){
+      p.x = map(p.x, TS_LEFT, TS_RT, 320,0);
+      p.y = map(p.y, TS_BOT, TS_TOP, 0, 480);
+      if(p.x >70 && p.x < 270 ){
+        if(p.y > 120 && p.y < 210){
+          ativo = 0;
+          newGame = 1;
+          estadoAtual = MENU_ESCOLHA_JOGADORES;
+          menuInicialPtr->ligaBotao(ativo);
+        }      
+        else if(p.y > 240 && p.y < 330){
+          ativo = 1;
+          newGame = 1;
+          estadoAtual = MENU_ESCOLHA_JOGADORES;
+          menuInicialPtr->ligaBotao(ativo);
+        }
+      }
+    }
+    if(input == 5){
+      ativo = menuInicialPtr->indexBotaoAtivo();
+      newGame = 1;
+      estadoAtual = MENU_ESCOLHA_JOGADORES;
+      menuInicialPtr->ligaBotao(ativo);
+    }
+    if (ativo == 0)
+      tresD = 0;
+    //Faz o botão clicado trocar de cor
+    else if(ativo == 1)
+      tresD == 1;
+    
     delay(100); 
   }
 /*=====================================================================================================*/
   else if(estadoAtual == MENU_ESCOLHA_JOGADORES){
-    //Desenha o menu inicial
-		MenuEscolhaJogadores _menuEscolhaJogadores(BLACK, &tft, true, "ESCOLHA N° DE JOGADORES");
-		_menuEscolhaJogadores.desenharMenu();
-
-		//Recebe input do usuário, aguarda o click
-		TSPoint p = waitTouch(ts);
-
-		//Agora é preciso processar esse ponto clicado
-		//processarClique(p, &estadoAtual);
-  	//Clicou no botão iniciar com apenas 1 jogador
-    if(p.x < 270 && p.x > 70){
-	    if( p.y > 100 && p.y < 190){
-        //Altera o estado
+    //Desenha o menu inicial	
+  	Menu* menuJogPtr = dynamic_cast<Menu*>(&_menuEscolhaJogadores);
+	  menuJogPtr->desenharMenu();
+    int leitura = analogRead(A15);
+    int input = onRange(leitura);
+    int ativo;
+    TSPoint p;
+    while(input != 5 && ((p.z < MINPRESSURE || p.z > MAXPRESSURE))){
+      
+      p = ts.getPoint();
+      pinMode(XM, OUTPUT);
+      pinMode(YP, OUTPUT);
+      leitura = analogRead(A15);
+      
+      input = onRange(leitura);
+      //botao apertado é cima ou baixo
+      if(input == 2 || input == 3){
+        delay(200);
+        menuJogPtr->trocaBotao(input);
+  
+      }
+    }
+    if(input == 5){
+      ativo = menuJogPtr->indexBotaoAtivo();
+      menuJogPtr->ligaBotao(ativo);
+      if(ativo == 0){
         single = 1;
         if(tresD)
-          estadoAtual = JOGO_SINGLEPLAYER3D;
+            estadoAtual = JOGO_SINGLEPLAYER3D;
         else
           estadoAtual = JOGO_SINGLEPLAYER2D;
-        _menuEscolhaJogadores.ligaBotao(0);
-      //Faz o botão clicado trocar de cor
-	    }
-	    else if(p.y > 220 && p.y < 310){
+      }
+      else if(ativo == 1){
         single = 0;
         if(tresD)
           estadoAtual = JOGO_MULTIPLAYER3D;
         else
           estadoAtual = JOGO_MULTIPLAYER2D;
-        _menuEscolhaJogadores.ligaBotao(1);
-	    } 
-      else if(p.y >340 && p.y < 430){
+      }
+      else if(ativo == 2){
         estadoAtual = MENU_INICIAL;
-        _menuEscolhaJogadores.ligaBotao(2);
-        delay(100);
       }
     }
+    if(input!=5){
+      p.x = map(p.x, TS_LEFT, TS_RT, 320,0);
+      p.y = map(p.y, TS_BOT, TS_TOP, 0, 480);
+      if(p.x >70 && p.x < 270 ){
+        if( p.y > 100 && p.y < 190){
+          single = 1;
+          if(tresD)
+            estadoAtual = JOGO_SINGLEPLAYER3D;
+          else
+            estadoAtual = JOGO_SINGLEPLAYER2D;
+          menuJogPtr->ligaBotao(0);
+        }      
+        else if(p.y > 220 && p.y < 310){
+          single = 0;
+          if(tresD)
+            estadoAtual = JOGO_MULTIPLAYER3D;
+          else
+            estadoAtual = JOGO_MULTIPLAYER2D;
+          menuJogPtr->ligaBotao(1);
+        }
+        else if(p.y >340 && p.y < 430){
+          estadoAtual = MENU_INICIAL;
+          menuJogPtr->ligaBotao(2);
+        }
+      }
+    }
+    delay(100);
   }
 
 /*=====================================================================================================*/
@@ -85,28 +148,30 @@ void GerenciarEstados(){
 	else if(estadoAtual == JOGO_SINGLEPLAYER2D){
     	Serial.println("Case 2");
 		int linha, coluna,flagBotaoPausa=0; //variaveis auxiliares
+    Coordenada coord;
 		if(newGame){
       		//resetar as variáveis
 			resetarVariaveis();
 			matrizEmBranco(hash);
-
+      jogo2D.zeraHash();
+      jogo2D.DesenhaHash();
       srand(time(NULL));
 
-			desenharJogoDaVelha(tft);
+			//desenharJogoDaVelha(tft);
+      
 			//Aqui é o caso SINGLEPLAYER, então é preciso definir onde a MÁQUINA vai jogar
 			//Vamos assumir que sempre será um novo jogo, nós definimos que a máquina sempre joga primeiro
 			turn = 1;
 			coluna = rand()%3;
 			linha = rand()%3;
 			hash[linha][coluna] = AI;
-			desenharJogada(linha, coluna, turn, tft);
+			jogo2D.JogodaVelha[linha][coluna]->setJogada(AI);
 			turn = 2;
 			cont++;
 		}
     //Caso não seja um novo jogo
 		else{
-			desenharJogoDaVelha(tft);
-			desenharJogoSalvo(hash, tft);
+			jogo2D.DesenhaHash();
 		}
 
 		
@@ -118,26 +183,54 @@ void GerenciarEstados(){
 				coluna = aiPlay.j;
 				hash[linha][coluna] = AI;
 				//delay(250);
+        jogo2D.JogodaVelha[linha][coluna]->setJogada(AI);
 				desenharJogada(linha, coluna, turn, tft);
 				turn = 2;
 				cont++; 				
 			}
 			//Se for a vez do player
 			else{
-				TSPoint p = waitTouch(ts);
-				//Checar botão de pausa
-				if(p.x >= (205) && p.x <= (295) && p.y >=25 && p.y<=70){
-					flagBotaoPausa=1;
-					break;
-				}
+				int ativo;
+        int leitura = analogRead(A15);
+        int input = onRange(leitura);
+        TSPoint p;
+        while(input != 5 && ((p.z < MINPRESSURE || p.z > MAXPRESSURE))){
+   
+          p = ts.getPoint();
+          pinMode(XM, OUTPUT);
+          pinMode(YP, OUTPUT);
 
-				Coordenada coord = coordenadaHash(p.x, p.y);
+          leitura = analogRead(A15);          
+          input = onRange(leitura);
+          //botao apertado é cima ou baixo
+          if(input !=0 && input != 5){
+            jogo2D.setSelecionado(input);
+          }
+        }
+        if (input == 5){
+          coord = jogo2D.getCoords();
+          if(coord.x == -1){
+            flagBotaoPausa=1;
+					  break;
+          }
+        }
+				//Checar botão de pausa
+        else{
+          p.x = map(p.x, TS_LEFT, TS_RT, 320,0);
+          p.y = map(p.y, TS_BOT, TS_TOP, 0, 480);
+          if(p.x >= (205) && p.x <= (295) && p.y >=25 && p.y<=70){
+            flagBotaoPausa=1;
+            break;
+          }
+          coord = coordenadaHash(p.x, p.y);
+        }
+
 				linha = coord.y;
 				coluna = coord.x;
 				//É preciso saber se a posição clicada é válida
 				if(valid_play(hash, linha, coluna)){
 					hash[linha][coluna] = 2;
-					desenharJogada(linha, coluna, turn, tft);
+					jogo2D.JogodaVelha[linha][coluna]->setJogada(turn);
 					turn=1;
 					cont++;
 				}
@@ -186,41 +279,69 @@ void GerenciarEstados(){
 
 
     //Variaveis auxiliares
+    Coordenada coord;
     int linha, coluna, flagBotaoPausa=0;
 
   	if(newGame){
   		resetarVariaveis();
   		matrizEmBranco(hash);
-		desenharJogoDaVelha(tft);
+		  jogo2D.zeraHash();
+      jogo2D.DesenhaHash();
   	}
 
   	else{
-  		desenharJogoDaVelha(tft);
-  		desenharJogoSalvo(hash, tft);
+  		jogo2D.DesenhaHash();
   	}
 
   	while(check_winner(hash) == -1 && cont < 9){
   		//Assumindo sempre um novo jogo
   		//Receber a entrada 
-  		TSPoint p = waitTouch(ts);
+      int ativo;
+      int leitura = analogRead(A15);
+      int input = onRange(leitura);
+      TSPoint p;
+      while(input != 5 && ((p.z < MINPRESSURE || p.z > MAXPRESSURE))){
+  
+        p = ts.getPoint();
+        pinMode(XM, OUTPUT);
+        pinMode(YP, OUTPUT);
 
-  		//Processar a entrada, checar se é menu de pause
-  		if(p.x >= (205) && p.x <= (295) && p.y >=25 && p.y<=70){
-  			//Alterar o estado
-  			//estadoAtual = MENU_PAUSE;
-  			flagBotaoPausa = 1;
-  			break;
-  		}
+        leitura = analogRead(A15);          
+        input = onRange(leitura);
+        //botao apertado é cima ou baixo
+        if(input !=0 && input != 5){
+          jogo2D.setSelecionado(input);
+        }
+      }
+      if (input == 5){
+        coord = jogo2D.getCoords();
+        if(coord.x == -1){
+          flagBotaoPausa=1;
+          break;
+        }
+      }
+      //Checar botão de pausa
+      else{
+        p.x = map(p.x, TS_LEFT, TS_RT, 320,0);
+        p.y = map(p.y, TS_BOT, TS_TOP, 0, 480);
+        if(p.x >= (205) && p.x <= (295) && p.y >=25 && p.y<=70){
+          flagBotaoPausa = 1;
+          break;
+        }
+        coord = coordenadaHash(p.x, p.y);
+      }
 
-  		Coordenada coord = coordenadaHash(p.x, p.y);
   		linha = coord.y;
   		coluna = coord.x;
-
+      Serial.println(linha);
+      Serial.println(coluna);
+      Serial.print("valor hash: ");
+      Serial.println(hash[linha][coluna]);
   		//Analisa se o ponto é válido e desenha caso for
   		if(turn == 1){
   			if(valid_play(hash, linha, coluna)){
   				hash[linha][coluna] = 1;
-  				desenharJogada(linha, coluna, turn, tft);
+  				jogo2D.JogodaVelha[linha][coluna]->setJogada(turn);
   				turn = 2;
   				cont++;
   			}
@@ -230,8 +351,8 @@ void GerenciarEstados(){
   		else{
   			if(valid_play(hash, linha, coluna)){
   				hash[linha][coluna] = 2;
-  				desenharJogada(linha, coluna, turn, tft);
-          		turn=1;
+  				jogo2D.JogodaVelha[linha][coluna]->setJogada(turn);
+          turn=1;
   				cont++;
   			}
   		}  		
@@ -427,17 +548,51 @@ void GerenciarEstados(){
 //Pause
   else if(estadoAtual == MENU_PAUSE){
   	//Desenhar o menu de pause
-  	MenuPause _menuPause(BLACK,&tft,true,"PAUSE");
-  	_menuPause.desenharMenu();
+    Menu* menuPausePtr = dynamic_cast<Menu*>(&_menuPause);
 
-  	//Esperar o clique
-  	while(true){
-  		TSPoint p = waitTouch(ts);
-  		if(p.x < 250 && p.x > 70){
-  			//Botao REINICIAR
-  			if(p.y > 220 && p.y < 310){
-  				//Basta reiniciar as variaveis e alterar o estado
-          _menuPause.ligaBotao(1);
+  	menuPausePtr->desenharMenu();
+    int leitura = analogRead(A15);
+    int input = onRange(leitura);
+    int ativo;
+    TSPoint p;
+    while(input != 5 && ((p.z < MINPRESSURE || p.z > MAXPRESSURE))){
+      
+      p = ts.getPoint();
+      pinMode(XM, OUTPUT);
+      pinMode(YP, OUTPUT);
+      leitura = analogRead(A15);
+      
+      input = onRange(leitura);
+      Serial.println(input);
+      //botao apertado é cima ou baixo
+      if(input == 2 || input == 3){
+        delay(200);
+      	menuPausePtr->trocaBotao(input);
+      }
+    }
+    if(input == 5){
+      ativo = menuPausePtr->indexBotaoAtivo();
+      switch(ativo){
+        case 0:
+          newGame = 0;
+          menuPausePtr->ligaBotao(0);
+  				//Basta alterar o estado, pq o hash não foi alterado
+  				if(single){
+            if(tresD)
+              estadoAtual = JOGO_SINGLEPLAYER3D;
+            else
+              estadoAtual = JOGO_SINGLEPLAYER2D;
+          }
+  				else{
+            if(tresD)
+              estadoAtual = JOGO_MULTIPLAYER3D;
+            else
+              estadoAtual = JOGO_MULTIPLAYER2D;
+          } 
+  			  break;
+        case 1:
+          //Basta reiniciar as variaveis e alterar o estado
+          menuPausePtr->ligaBotao(1);
   				resetarVariaveis();
   				matrizEmBranco(hash);
   				if(single == 1){
@@ -453,24 +608,57 @@ void GerenciarEstados(){
               estadoAtual = JOGO_MULTIPLAYER2D;
           }  
   				break;
-  			}
-  			//Botão SAIR
-  			else if(p.y > 340 && p.y < 430){
-  				//Trocar a cor do botão
-          _menuPause.ligaBotao(2);
+        case 2:
+          //Trocar a cor do botão
+          menuPausePtr->ligaBotao(2);
   				//Alterar o estado
   				estadoAtual = MENU_INICIAL;
   				resetarVariaveis();
   				matrizEmBranco(hash);
           matrizEmBranco3D(hash_3D);
-  				break;
+  				break;          
+      }
+    }
+  	//Esperar o clique
+    else if(input != 5){
+      p.x = map(p.x, TS_LEFT, TS_RT, 320,0);
+      p.y = map(p.y, TS_BOT, TS_TOP, 0, 480);
+  		if(p.x < 250 && p.x > 70){
+  			//Botao REINICIAR
+  			if(p.y > 220 && p.y < 310){
+  				//Basta reiniciar as variaveis e alterar o estado
+          menuPausePtr->ligaBotao(1);
+  				resetarVariaveis();
+  				matrizEmBranco(hash);
+  				if(single == 1){
+            if(tresD)
+  					  estadoAtual = JOGO_SINGLEPLAYER3D;
+            else
+              estadoAtual = JOGO_SINGLEPLAYER2D;
+          }
+  				else{
+  					if(tresD)
+  					  estadoAtual = JOGO_MULTIPLAYER3D;
+            else
+              estadoAtual = JOGO_MULTIPLAYER2D;
+          }  
+  			}
+  			//Botão SAIR
+  			else if(p.y > 340 && p.y < 430){
+  				//Trocar a cor do botão
+          menuPausePtr->ligaBotao(2);
+  				//Alterar o estado
+  				estadoAtual = MENU_INICIAL;
+  				resetarVariaveis();
+  				matrizEmBranco(hash);
+          matrizEmBranco3D(hash_3D);
   			}
 
   			//Botão retornar (volta o jogo com todas as jogadas já feitas)
   			else if(p.y > 100 && p.y < 190){
   				//não é um novo jogo
   				newGame = 0;
-          _menuPause.ligaBotao(0);
+          menuPausePtr->ligaBotao(0);
   				//Basta alterar o estado, pq o hash não foi alterado
   				if(single){
             if(tresD)
@@ -484,10 +672,8 @@ void GerenciarEstados(){
             else
               estadoAtual = JOGO_MULTIPLAYER2D;
           } 
-  				break;
   			}
   		}
-
   	}
   }
 }

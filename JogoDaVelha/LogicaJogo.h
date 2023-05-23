@@ -516,3 +516,21 @@ void desenharJogoDaVelha3D(MCUFRIEND_kbv tft){
   botaoPause3D.desenharBotao();
   delay(200);
 }
+
+int onRange(int input){
+  if(input >=132  && input <= 152){
+    return 2;
+  }
+  else if(input >= 292 && input <= 312){
+    return 3;
+  }
+  else if(input >= 727 && input <= 747){
+    return 5;
+  }
+  else if(input >=0 && input <=10){
+    return 1;
+  }
+  else if(input >= 480 && input <= 500){
+    return 4;
+  }
+}

@@ -1,7 +1,7 @@
 //
 #include "GerenciadorDeEstados.h"
 #include "IntroducaoJogo.h"
-
+#include "Jogo2D.h"
 void setup(){
   Serial.begin(9600);
   uint16_t ID = tft.readID();
@@ -32,16 +32,12 @@ void setup(){
   //É o tempo que a introdução vai ficar na tela
   delay(1000);
   limparTela(tft);
+
 }
 
-void loop(){/*
+void loop(){
 	update(tft);
-	GerenciarEstados();*/
-   // put your main code here, to run repeatedly:
-  int aux = analogRead(A15);
-  botao(aux);
-  delay(100);
-
+	GerenciarEstados();
 }
 
 void botao(int input){
@@ -71,45 +67,3 @@ void botao(int input){
   	tft.fillCircle(160, 240, 28, BLACK);
   }
 }
-
-void plotX(MCUFRIEND_kbv *tft, int x, int y, int size, int angle, uint16_t color) {
-  
-  int xEnd = 0;
-  int yEnd = 0;
-  float cosAngle = cos(angle * DEG_TO_RAD);
-  float sinAngle = sin(angle * DEG_TO_RAD);
-  
-  xEnd = x + 8;
-  yEnd = y + 12;
-  DrawAngledLine(tft, x, y, xEnd, yEnd, 5, color);
-
-  xEnd = x - 8;
-  yEnd = y - 12;
-  DrawAngledLine(tft, x, y, xEnd, yEnd, 5, color);
-
-
-
-
-
-}
-
-void DrawAngledLine(MCUFRIEND_kbv *tft ,int x, int y, int x1, int y1, int size, int color){
-  float dx = (size/2.0)*(x - x1)/sqrt(sq(x-x1)+sq(y-y1));
-  float dy = (size/2.0)*(y - y1)/sqrt(sq(x-x1)+sq(y-y1));
-  tft->fillTriangle(x + dx,y - dy, x - dx, y + dy , x1 + dx, y1 - dy,color);
-  tft->fillTriangle(x - dx, y + dy, x1 - dx, y1 + dy, x1 + dx, y1 - dy, color);
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
