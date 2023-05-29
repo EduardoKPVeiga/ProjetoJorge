@@ -65,7 +65,7 @@ void GerenciarEstados(){
       tresD = 0;
     //Faz o botão clicado trocar de cor
     else if(ativo == 1)
-      tresD == 1;
+      tresD = 1;
     
     delay(100); 
   }
@@ -147,6 +147,13 @@ void GerenciarEstados(){
   //JOGO SINGLEPLAYER2D
 	else if(estadoAtual == JOGO_SINGLEPLAYER2D){
     	Serial.println("Case 2");
+    //inicia os botoes selecionados do jogo
+    jogo2D.hashBotao[9]->setCor(RED);
+    jogo2D.hashBotao[9]->setAtivo(true);
+    jogo2D.hashBotao[9]->desenhaSelecionado();
+    for (int i = 0; i < 9; i++){
+      jogo2D.hashBotao[i]->setAtivo(false);
+    }
 		int linha, coluna,flagBotaoPausa=0; //variaveis auxiliares
     Coordenada coord;
 		if(newGame){
@@ -262,8 +269,11 @@ void GerenciarEstados(){
 		
 		if(flagBotaoPausa){
 			estadoAtual = MENU_PAUSE;
-      botaoPause.setCor(GREEN);
-      botaoPause.desenharBotao();
+      jogo2D.setAtivo(9);
+      jogo2D.hashBotao[9]->setCor(GREEN);
+      jogo2D.hashBotao[9]->desenhaSelecionado();
+      jogo2D.hashBotao[9]->desenharBotao();
+      
 		}
 		else{
 			estadoAtual = MENU_INICIAL;
@@ -282,16 +292,20 @@ void GerenciarEstados(){
     Coordenada coord;
     int linha, coluna, flagBotaoPausa=0;
 
+    //inicia os botoes selecionados do jogo
+    jogo2D.hashBotao[9]->setCor(RED);
+    jogo2D.hashBotao[9]->setAtivo(true);
+    jogo2D.hashBotao[9]->desenhaSelecionado();
+    for (int i = 0; i < 9; i++){
+      jogo2D.hashBotao[i]->setAtivo(false);
+    }
   	if(newGame){
   		resetarVariaveis();
   		matrizEmBranco(hash);
 		  jogo2D.zeraHash();
-      jogo2D.DesenhaHash();
-  	}
 
-  	else{
-  		jogo2D.DesenhaHash();
   	}
+    jogo2D.DesenhaHash();
 
   	while(check_winner(hash) == -1 && cont < 9){
   		//Assumindo sempre um novo jogo
@@ -382,8 +396,10 @@ void GerenciarEstados(){
 		}	
 		else{
 			estadoAtual = MENU_PAUSE;
-      botaoPause.setCor(GREEN);
-      botaoPause.desenharBotao();
+      jogo2D.setAtivo(9);
+      jogo2D.hashBotao[9]->setCor(GREEN);
+      jogo2D.hashBotao[9]->desenhaSelecionado();
+      jogo2D.hashBotao[9]->desenharBotao();
     }
   	
     delay(1000);

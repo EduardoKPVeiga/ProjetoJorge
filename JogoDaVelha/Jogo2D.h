@@ -9,9 +9,10 @@ class Jogo2D{
         Botao* pause;
         int vetorPossibilidades[10];
         Botao* ptrBotao;
-        Botao* hashBotao[10];
+        
         
     public:
+        Botao* hashBotao[10];
         Botao* JogodaVelha[3][3];
         Jogo2D(){
           tft.fillScreen(WHITE);

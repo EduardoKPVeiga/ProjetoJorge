@@ -55,6 +55,11 @@ typedef struct{
 	int x, y;
 }Coordenada;
 
+typedef struct{
+  Coordenada inicio;
+  bool ativo;
+  int type;
+}quadradoHash3D;
 
 //Defines
 #define AI 1
