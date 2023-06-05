@@ -155,7 +155,7 @@ tupla minimax3D (int ***hash, bool isMaximaxing, int depth,  int alpha, int beta
       tup.i = 3 + 1 - depth;;
       return tup;
     case 2:
-      tup.i = depth - 3- 1;
+      tup.i = depth - 3 - 1;
       return tup;
     }
   }
@@ -169,57 +169,57 @@ tupla minimax3D (int ***hash, bool isMaximaxing, int depth,  int alpha, int beta
     
 tupla bestScore;
 tupla score;
-if(depth < 3){
-    if(isMaximaxing){
-        bestScore.i = INT16_MIN;
-        bestScore.j = INT16_MAX; 
-        for(int k = 0; k < N; k++){
-            for(int i = 0; i < N; i++){
-                for (int j = 0; j < N; j++){
-                    if(hash[k][i][j] == 0){
-                        hash[k][i][j] = AI;
-                        //chama a recursão
-                        score = minimax3D(hash, false, depth + 1, alpha, beta);
-                        hash[k][i][j] = 0;
-                        if((score.i > bestScore.i) || (score.i == bestScore.i && score.j < bestScore.j)){
-                            bestScore.i = score.i;
-                            bestScore.j = score.j;
-                        }
-                        alpha = max(alpha, bestScore.i);
-                        if(beta <= alpha)
-                          return bestScore;
-                    }
-                }
-            }
-        }
-    } else{ // MINIMAZING
-        bestScore.i = INT16_MAX;
-        bestScore.j = INT16_MIN; 
-        for(int k = 0; k < N; k++){
-            for(int i = 0; i < N; i++){
-                for (int j = 0; j < N; j++){
-                    if(hash[k][i][j] == 0){
-                        hash[k][i][j] = PLAYER_2;
-                        //chama a recursão
-                        score = minimax3D(hash,true, depth + 1, alpha, beta);
-                        hash[k][i][j] = 0;
 
-                        if((score.i < bestScore.i) || (score.i == bestScore.i && score.j > bestScore.j)){
-                            bestScore.i = score.i;
-                            bestScore.j = score.j;
-                        }
-                        beta = min(beta, bestScore.i);
-                        if (beta <= alpha){
-                            return bestScore;
-                        }
-                    }
-                }
-            }
-        }
-      
-    }     
-  }
+  if(isMaximaxing){
+      bestScore.i = INT16_MIN;
+      bestScore.j = INT16_MAX; 
+      for(int k = 0; k < N; k++){
+          for(int i = 0; i < N; i++){
+              for (int j = 0; j < N; j++){
+                  if(hash[k][i][j] == 0){
+                      hash[k][i][j] = AI;
+                      //chama a recursão
+                      score = minimax3D(hash, false, depth + 1, alpha, beta);
+                      hash[k][i][j] = 0;
+                      if((score.i > bestScore.i) || (score.i == bestScore.i && score.j < bestScore.j)){
+                          bestScore.i = score.i;
+                          bestScore.j = score.j;
+                      }
+                      alpha = max(alpha, bestScore.i);
+                      if(beta <= alpha)
+                        return bestScore;
+                  }
+              }
+          }
+      }
+  } else{ // MINIMAZING
+      bestScore.i = INT16_MAX;
+      bestScore.j = INT16_MIN; 
+      for(int k = 0; k < N; k++){
+          for(int i = 0; i < N; i++){
+              for (int j = 0; j < N; j++){
+                  if(hash[k][i][j] == 0){
+                      hash[k][i][j] = PLAYER_2;
+                      //chama a recursão
+                      score = minimax3D(hash,true, depth + 1, alpha, beta);
+                      hash[k][i][j] = 0;
+
+                      if((score.i < bestScore.i) || (score.i == bestScore.i && score.j > bestScore.j)){
+                          bestScore.i = score.i;
+                          bestScore.j = score.j;
+                      }
+                      beta = min(beta, bestScore.i);
+                      if (beta <= alpha){
+                          return bestScore;
+                      }
+                  }
+              }
+          }
+      }
+    
+  }     
 }
+
 
 //Cria uma matriz inicializada com 0
 void matrizEmBranco(int **arr){

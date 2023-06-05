@@ -7,7 +7,6 @@ class Jogo2D{
     private:
         int ativo;
         Botao* pause;
-        int vetorPossibilidades[10];
         Botao* ptrBotao;
         
         

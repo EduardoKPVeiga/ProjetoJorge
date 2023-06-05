@@ -2,6 +2,12 @@
 #include "GerenciadorDeEstados.h"
 #include "IntroducaoJogo.h"
 #include "Jogo2D.h"
+#include "LogicaJogo.h"
+#include "stdafx.h"
+
+int ***qqcoisa = create_matrix_array();
+Coordenada hashTresD[3][3][3];
+
 void setup(){
   Serial.begin(9600);
   uint16_t ID = tft.readID();
@@ -30,40 +36,10 @@ void setup(){
   introducao(tft);
 
   //É o tempo que a introdução vai ficar na tela
-  delay(1000);
-  limparTela(tft);
-
+  
 }
 
 void loop(){
 	update(tft);
 	GerenciarEstados();
-}
-
-void botao(int input){
-  if(input >=0 && input <= 10){
-    limparTela(tft);
-    tft.fillCircle(160, 240, 33, GREEN);
-  	tft.fillCircle(160, 240, 28, BLACK);
-  }
-  else if(input >=132  && input <= 152){
-    limparTela(tft);
-    tft.fillCircle(160, 240, 33, RED);
-  	tft.fillCircle(160, 240, 28, BLACK);
-  }
-  else if(input >= 292 && input <= 312){
-    limparTela(tft);
-    tft.fillCircle(160, 240, 33, BLUE);
-  	tft.fillCircle(160, 240, 28, BLACK);
-  }
-  else if(input >=480 && input <= 500){
-    limparTela(tft);
-    tft.fillCircle(160, 240, 33, WHITE);
-  	tft.fillCircle(160, 240, 28, BLACK);
-  }
-  else if(input >= 727 && input <= 747){
-    limparTela(tft);
-    tft.fillCircle(160, 240, 33, YELLOW);
-  	tft.fillCircle(160, 240, 28, BLACK);
-  }
 }

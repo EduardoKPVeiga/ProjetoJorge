@@ -52,7 +52,7 @@ typedef struct{
 }tupla;
 
 typedef struct{
-	int x, y;
+	int x, y, z;
 }Coordenada;
 
 typedef struct{
@@ -72,22 +72,22 @@ typedef struct{
 #define MINPRESSURE 10
 #define MAXPRESSURE 1000
 //Colors
-#define WHITE          0xFFFF
-#define YELLOW         0xFFE0
-#define RED            0xF800
-#define BLUE           0x001F
-#define BLACK          0x0000
-#define GREEN          0x07E0
-#define ORANGE         0XFFA500
+#define WHITE 0xFFFF
+#define YELLOW 0xFFE0
+#define RED 0xF800
+#define BLUE 0x001F
+#define BLACK 0x0000 
+#define GREEN 0x07E0
+#define ORANGE 0XFFA500
 
 //Funções auxiliares
 
 //Define e retorna as coordenadas x e y
 Coordenada setCoord(int x, int y){
 	Coordenada coord;
-  	coord.x = x;
-  	coord.y = y;
-  	return coord;
+  coord.x = x;
+  coord.y = y;
+  return coord;
 }
 
 //Limpa a tela
@@ -102,6 +102,8 @@ void update(MCUFRIEND_kbv tft){
 	tft.setTextSize(2);
 	tft.setTextColor(WHITE);
 }
+
+
 
 //Aguarda um toque na tela e retorna as coordenadas do toque
 TSPoint waitTouch(TouchScreen ts) {
@@ -199,7 +201,6 @@ void desenharJogada(int linha, int coluna, int turn, MCUFRIEND_kbv tft){
 	tft.print(_char);
 }
 
-//Não sei pra que serve
 Coordenada coordenadaHash (int x, int y){
 	Coordenada coord;
   coord.x = -1;

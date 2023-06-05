@@ -8,10 +8,12 @@
 #include "MenuEscolhaJogadores.h"
 #include "Botao.h"
 #include "Jogo2D.h"
+#include "Jogo3D.h"
 MenuInicial _menuInicial(BLACK, &tft, true, "ESCOLHA O MODO DE JOGO");
 MenuEscolhaJogadores _menuEscolhaJogadores(BLACK, &tft, true, "ESCOLHA N° DE JOGADORES");
 MenuPause _menuPause(BLACK,&tft,true,"PAUSE");
 Jogo2D jogo2D;
+Jogo3D jogo3D;
 void GerenciarEstados(){
 /*=====================================================================================================*/
 //MENU INICIAL
@@ -347,10 +349,7 @@ void GerenciarEstados(){
 
   		linha = coord.y;
   		coluna = coord.x;
-      Serial.println(linha);
-      Serial.println(coluna);
-      Serial.print("valor hash: ");
-      Serial.println(hash[linha][coluna]);
+     
   		//Analisa se o ponto é válido e desenha caso for
   		if(turn == 1){
   			if(valid_play(hash, linha, coluna)){
@@ -411,41 +410,69 @@ void GerenciarEstados(){
       TSPoint p;
       tupla coord;
       if(newGame){
+        jogo3D.zeraVariaveis();
         resetarVariaveis();
         matrizEmBranco3D(hash_3D);
-        desenharJogoDaVelha3D(tft); // mudar para 
+        jogo3D.desenhaHash();
         turn = 1;
       }
-
       else{
-        desenharJogoDaVelha3D(tft);
-        desenharJogoSalvo3D(hash_3D, tft);
+        jogo3D.desenhaHash();
       }
+      jogo3D.pause->setCor(RED);
+      jogo3D.pause->desenharBotao();
 
       while(check_winner_3D(hash_3D) == -1 && cont != 27 && flagBotaoPausa == 0){
-        p = waitTouch(ts);
-        Serial.println(p.x);
-        Serial.println(p.y);
-        if(p.x >= (205) && p.x <= (295) && p.y >=25 && p.y<=70){
-          //Alterar o estado
-          //estadoAtual = MENU_PAUSE;
-          flagBotaoPausa = 1;
-  		  }
-        coord = transformaTouch(p.x,p.y);
-        if(turn == 2){
-          if(valid_play3D(hash_3D,coord.i, coord.j, coord.k)){
-            desenhaJogadas3D(&tft,coord.i,coord.j, coord.k,turn);
-            hash_3D[coord.k][coord.i][coord.j] = turn;  
-            turn = 1;
-          }         
+        int ativo;
+        int leitura = analogRead(A15);
+        int input = onRange(leitura);
+        TSPoint p;
+        input = -1;
+        while(input != 5 && ((p.z < MINPRESSURE || p.z > MAXPRESSURE))){
+    
+          p = ts.getPoint();
+          pinMode(XM, OUTPUT);
+          pinMode(YP, OUTPUT);
+
+          leitura = analogRead(A15);          
+          input = onRange(leitura);
+          //botao apertado é cima ou baixo
+          if(input !=0 && input != 5){
+            jogo3D.setSelecionado(input);
+          }
         }
-        else if (turn == 1){ 
-          if(valid_play3D(hash_3D,coord.i, coord.j, coord.k)){
-            desenhaJogadas3D(&tft,coord.i,coord.j, coord.k,turn);
-            hash_3D[coord.k][coord.i][coord.j] = turn;   
-            turn = 2;  
-          }        
+        if (input == 5){
+          coord = jogo3D.getCoords();
+          if(coord.i == -1){
+            flagBotaoPausa=1;
+            break;
+          }
+        }
+      //Checar botão de pausa
+      else{
+        p.x = map(p.x, TS_LEFT, TS_RT, 320,0);
+        p.y = map(p.y, TS_BOT, TS_TOP, 0, 480);
+        if(p.x >= (205) && p.x <= (295) && p.y >=25 && p.y<=70){
+          flagBotaoPausa = 1;
+          break;
+        }
+        coord = transformaTouch(p.x, p.y);
       }
+      
+      if(turn == 2){
+        if(valid_play3D(hash_3D,coord.i, coord.j, coord.k)){
+          jogo3D.setJogada(coord.k,coord.i,coord.j,turn);
+          hash_3D[coord.k][coord.i][coord.j] = turn;  
+          turn = 1;
+        }         
+      }
+      else if (turn == 1){ 
+        if(valid_play3D(hash_3D,coord.i, coord.j, coord.k)){
+          jogo3D.setJogada(coord.k,coord.i,coord.j,turn);
+          hash_3D[coord.k][coord.i][coord.j] = turn;   
+          turn = 2;  
+        }        
+    }
     }
 
     if(flagBotaoPausa==0){
@@ -471,60 +498,76 @@ void GerenciarEstados(){
     }
     else{
       estadoAtual = MENU_PAUSE;
-      botaoPause3D.setCor(GREEN);
-      botaoPause3D.desenharBotao();
+      jogo3D.pause->setCor(GREEN);
+      jogo3D.pause->setAtivo(false);
+      jogo3D.pause->desenharBotao();
+      jogo3D.hashTresD[0][0][0]->ativo = true;
     }
       delay(1000);
   }
 /*=====================================================================================================*/
 	else if(estadoAtual == JOGO_SINGLEPLAYER3D){
-		int linha, coluna, matriz, flagBotaoPausa=0;
-		TSPoint p;
-		tupla coord;
-		tupla aiPlay;
-		if(newGame){
-			resetarVariaveis();
-			matrizEmBranco3D(hash_3D);
-			desenharJogoDaVelha3D(tft); // mudar para 
-			//turn = AI;
-      /*srand(time(NULL));
-			coluna = rand()%3;
-			linha = rand()%3;
-      matriz = rand()%3;
-			hash_3D[matriz][linha][coluna] = AI;
-			desenhaJogadas3D(&tft,matriz, linha, coluna, AI);*/
-			turn = 2;
-			//cont++;
-		}
-
-
+		int linha, coluna, flagBotaoPausa=0;
+    TSPoint p;
+    tupla coord;
+    tupla aiPlay;
+    if(newGame){
+      jogo3D.zeraVariaveis();
+      resetarVariaveis();
+      matrizEmBranco3D(hash_3D);
+      jogo3D.desenhaHash();
+      turn = 1;
+    }
     else{
-			desenharJogoDaVelha3D(tft);
-			desenharJogoSalvo3D(hash_3D, tft);
-     	}
+      jogo3D.desenhaHash();
+    }
+    jogo3D.pause->setCor(RED);
+    jogo3D.pause->desenharBotao();
+      
 		while(check_winner_3D(hash_3D) == -1 && cont != 27 && flagBotaoPausa == 0){
       Serial.println(turn);
 			if(turn == AI){
 				aiPlay = bestPlay3D(hash_3D);
         hash_3D[aiPlay.k][aiPlay.i][aiPlay.j] = AI;
-        Serial.print("aiPlay.i: ");
-        Serial.println(aiPlay.i);
-        Serial.print("aiPlay.j: ");
-        Serial.println(aiPlay.j);
-        Serial.print("aiPlay.k: ");
-        Serial.println(aiPlay.k);
         desenhaJogadas3D(&tft,aiPlay.i,aiPlay.j, aiPlay.k,turn);
         turn = 2;
         cont++;
 			}
 			else if (turn == 2){ 
-        p = waitTouch(ts);
-        if(p.x >= (205) && p.x <= (295) && p.y >=25 && p.y<=70){
-          //Alterar o estado
-          //estadoAtual = MENU_PAUSE;
-          flagBotaoPausa = 1;
+        int ativo;
+        int leitura = analogRead(A15);
+        int input = onRange(leitura);
+        TSPoint p;
+        input = -1;
+        while(input != 5 && ((p.z < MINPRESSURE || p.z > MAXPRESSURE))){
+          p = ts.getPoint();
+          pinMode(XM, OUTPUT);
+          pinMode(YP, OUTPUT);
+
+          leitura = analogRead(A15);          
+          input = onRange(leitura);
+          //botao apertado é cima ou baixo
+          if(input !=0 && input != 5){
+            jogo3D.setSelecionado(input);
+          }
         }
-			  coord = transformaTouch(p.x,p.y);
+        if (input == 5){
+          coord = jogo3D.getCoords();
+          if(coord.i == -1){
+            flagBotaoPausa = 1;
+            break;
+          }
+        }
+      //Checar botão de pausa
+        else{
+          p.x = map(p.x, TS_LEFT, TS_RT, 320,0);
+          p.y = map(p.y, TS_BOT, TS_TOP, 0, 480);
+          if(p.x >= (205) && p.x <= (295) && p.y >=25 && p.y<=70){
+            flagBotaoPausa = 1;
+            break;
+          }
+          coord = transformaTouch(p.x, p.y);
+        }
 				if(valid_play3D(hash_3D,coord.i, coord.j, coord.k)){
 					desenhaJogadas3D(&tft,coord.i,coord.j, coord.k,2);
 					hash_3D[coord.k][coord.i][coord.j] = 2;   
@@ -549,7 +592,7 @@ void GerenciarEstados(){
 				tft.println("JOGADOR  VENCEU!");
 				break;
 			case 2:
-				tft.println("EU VENCI!");
+				tft.println("Jogador Venceu!");
 			}
       resetarVariaveis();
 			matrizEmBranco3D(hash_3D); 
